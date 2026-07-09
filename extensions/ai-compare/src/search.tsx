@@ -7,16 +7,6 @@ import {
   Toast,
 } from "@raycast/api";
 
-type Preferences = {
-  sites?: string;
-  siteType?: string;
-  openclawMode?: boolean;
-};
-
-type Arguments = {
-  query: string;
-};
-
 const AI_COMPARE_CHROME_EXTENSION_ID = "dkhpgbbhlnmjbkihoeniojpkggkabbbl";
 
 function appendOptionalParam(
@@ -34,7 +24,7 @@ function buildAiCompareUrl(preferences: Preferences, query: string): string {
   const params = new URLSearchParams();
   params.set("query", query.trim());
   appendOptionalParam(params, "sites", preferences.sites);
-  appendOptionalParam(params, "type", preferences.siteType || "information");
+  appendOptionalParam(params, "type", preferences.siteType);
   if (preferences.openclawMode) {
     params.set("openclaw", "1");
   }
@@ -43,7 +33,7 @@ function buildAiCompareUrl(preferences: Preferences, query: string): string {
 }
 
 export default async function Command(
-  props: LaunchProps<{ arguments: Arguments }>,
+  props: LaunchProps<{ arguments: Arguments.Search }>,
 ) {
   const query = props.arguments.query.trim();
   if (!query) {
