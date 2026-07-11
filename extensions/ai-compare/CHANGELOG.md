@@ -4,4 +4,5 @@
 
 - Add a command to open AI Compare with a query.
 - Add a focused search view for entering the query directly after opening the command.
+- Support launching from Raycast fallback search text.
 - Add preferences for sites, site type, and OpenClaw mode.

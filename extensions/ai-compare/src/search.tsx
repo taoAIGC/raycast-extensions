@@ -4,10 +4,12 @@ import {
   closeMainWindow,
   Form,
   getPreferenceValues,
+  LaunchProps,
   open,
   showToast,
   Toast,
 } from "@raycast/api";
+import { useEffect } from "react";
 
 const AI_COMPARE_CHROME_EXTENSION_ID = "dkhpgbbhlnmjbkihoeniojpkggkabbbl";
 
@@ -70,7 +72,13 @@ async function openAiCompare({
   }
 }
 
-export default function Command() {
+export default function Command(props: LaunchProps) {
+  useEffect(() => {
+    if (props.fallbackText) {
+      openAiCompare({ query: props.fallbackText });
+    }
+  }, [props.fallbackText]);
+
   return (
     <Form
       actions={
