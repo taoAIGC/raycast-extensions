@@ -1,11 +1,14 @@
 import {
+  Action,
+  ActionPanel,
   closeMainWindow,
   getPreferenceValues,
-  LaunchProps,
+  List,
   open,
   showToast,
   Toast,
 } from "@raycast/api";
+import { useState } from "react";
 
 const AI_COMPARE_CHROME_EXTENSION_ID = "dkhpgbbhlnmjbkihoeniojpkggkabbbl";
 
@@ -32,11 +35,9 @@ function buildAiCompareUrl(preferences: Preferences, query: string): string {
   return `chrome-extension://${AI_COMPARE_CHROME_EXTENSION_ID}/iframe/iframe.html?${params.toString()}`;
 }
 
-export default async function Command(
-  props: LaunchProps<{ arguments: Arguments.Search }>,
-) {
-  const query = props.arguments.query.trim();
-  if (!query) {
+async function openAiCompare(query: string): Promise<void> {
+  const trimmedQuery = query.trim();
+  if (!trimmedQuery) {
     await showToast({
       style: Toast.Style.Failure,
       title: "Enter a query first",
@@ -46,13 +47,13 @@ export default async function Command(
 
   try {
     const preferences = getPreferenceValues<Preferences>();
-    const url = buildAiCompareUrl(preferences, query);
+    const url = buildAiCompareUrl(preferences, trimmedQuery);
     await open(url, "Google Chrome");
     await closeMainWindow({ clearRootSearch: true });
     await showToast({
       style: Toast.Style.Success,
       title: "Opened AI Compare",
-      message: query,
+      message: trimmedQuery,
     });
   } catch (error) {
     await showToast({
@@ -61,4 +62,30 @@ export default async function Command(
       message: error instanceof Error ? error.message : String(error),
     });
   }
+}
+
+export default function Command() {
+  const [query, setQuery] = useState("");
+  const trimmedQuery = query.trim();
+
+  return (
+    <List
+      filtering={false}
+      searchBarPlaceholder="Enter a question or keyword"
+      onSearchTextChange={setQuery}
+    >
+      <List.Item
+        title={trimmedQuery ? `Search "${trimmedQuery}"` : "Enter a query"}
+        subtitle="AI Compare"
+        actions={
+          <ActionPanel>
+            <Action
+              title="Search with AI Compare"
+              onAction={() => openAiCompare(query)}
+            />
+          </ActionPanel>
+        }
+      />
+    </List>
+  );
 }
