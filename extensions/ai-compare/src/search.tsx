@@ -2,14 +2,14 @@ import {
   Action,
   ActionPanel,
   closeMainWindow,
-  Form,
   getPreferenceValues,
   LaunchProps,
+  List,
   open,
   showToast,
   Toast,
 } from "@raycast/api";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const AI_COMPARE_CHROME_EXTENSION_ID = "dkhpgbbhlnmjbkihoeniojpkggkabbbl";
 
@@ -73,6 +73,9 @@ async function openAiCompare({
 }
 
 export default function Command(props: LaunchProps) {
+  const [query, setQuery] = useState(props.fallbackText ?? "");
+  const trimmedQuery = query.trim();
+
   useEffect(() => {
     if (props.fallbackText) {
       openAiCompare({ query: props.fallbackText });
@@ -80,21 +83,26 @@ export default function Command(props: LaunchProps) {
   }, [props.fallbackText]);
 
   return (
-    <Form
-      actions={
-        <ActionPanel>
-          <Action.SubmitForm
-            title="Search with AI Compare"
-            onSubmit={openAiCompare}
-          />
-        </ActionPanel>
-      }
+    <List
+      filtering={false}
+      searchBarPlaceholder="Enter a question or keyword"
+      searchText={query}
+      throttle={false}
+      onSearchTextChange={setQuery}
     >
-      <Form.TextField
-        id="query"
-        title="Query"
-        placeholder="Enter a question or keyword"
+      <List.Item
+        id="search"
+        title={trimmedQuery ? `Search "${trimmedQuery}"` : "Enter a query"}
+        subtitle="Press Enter to open AI Compare"
+        actions={
+          <ActionPanel>
+            <Action
+              title="Search with AI Compare"
+              onAction={() => openAiCompare({ query })}
+            />
+          </ActionPanel>
+        }
       />
-    </Form>
+    </List>
   );
 }
