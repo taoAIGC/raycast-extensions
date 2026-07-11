@@ -2,13 +2,12 @@ import {
   Action,
   ActionPanel,
   closeMainWindow,
+  Form,
   getPreferenceValues,
-  List,
   open,
   showToast,
   Toast,
 } from "@raycast/api";
-import { useState } from "react";
 
 const AI_COMPARE_CHROME_EXTENSION_ID = "dkhpgbbhlnmjbkihoeniojpkggkabbbl";
 
@@ -35,14 +34,20 @@ function buildAiCompareUrl(preferences: Preferences, query: string): string {
   return `chrome-extension://${AI_COMPARE_CHROME_EXTENSION_ID}/iframe/iframe.html?${params.toString()}`;
 }
 
-async function openAiCompare(query: string): Promise<void> {
+type SearchFormValues = {
+  query: string;
+};
+
+async function openAiCompare({
+  query,
+}: SearchFormValues): Promise<boolean | void> {
   const trimmedQuery = query.trim();
   if (!trimmedQuery) {
     await showToast({
       style: Toast.Style.Failure,
       title: "Enter a query first",
     });
-    return;
+    return false;
   }
 
   try {
@@ -61,31 +66,27 @@ async function openAiCompare(query: string): Promise<void> {
       title: "Could not open AI Compare",
       message: error instanceof Error ? error.message : String(error),
     });
+    return false;
   }
 }
 
 export default function Command() {
-  const [query, setQuery] = useState("");
-  const trimmedQuery = query.trim();
-
   return (
-    <List
-      filtering={false}
-      searchBarPlaceholder="Enter a question or keyword"
-      onSearchTextChange={setQuery}
+    <Form
+      actions={
+        <ActionPanel>
+          <Action.SubmitForm
+            title="Search with AI Compare"
+            onSubmit={openAiCompare}
+          />
+        </ActionPanel>
+      }
     >
-      <List.Item
-        title={trimmedQuery ? `Search "${trimmedQuery}"` : "Enter a query"}
-        subtitle="AI Compare"
-        actions={
-          <ActionPanel>
-            <Action
-              title="Search with AI Compare"
-              onAction={() => openAiCompare(query)}
-            />
-          </ActionPanel>
-        }
+      <Form.TextField
+        id="query"
+        title="Query"
+        placeholder="Enter a question or keyword"
       />
-    </List>
+    </Form>
   );
 }
