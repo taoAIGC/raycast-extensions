@@ -18,15 +18,7 @@
       "name": "search",
       "title": "Search with AI Compare",
       "description": "Open the AI Compare browser extension and start searching.",
-      "mode": "no-view",
-      "arguments": [
-        {
-          "name": "query",
-          "type": "text",
-          "placeholder": "Enter a question or keyword",
-          "required": false
-        }
-      ]
+      "mode": "view"
     }
   ],
   "preferences": [
